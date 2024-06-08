@@ -39,8 +39,61 @@ function insertItem(table, item, callback) {
         })
 }
 
+function findItem(table, column, itemName, callback) {
+    const sql = `SELECT * FROM ${table} WHERE LEVENSHTEIN(${column}, '${itemName}') <= 7
+        OR SIMILARITY(${column}, '${itemName}') > 0.2`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function requestAll(table, callback) {
+    const sql = `SELECT * FROM ${table}`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function filterItem(table, item, callback) {
+    const { minPrice, maxPrice, category } = item;
+    let whereClause = [];
+    if (minPrice) {
+        whereClause.push(`price >= ${minPrice}`);
+    }
+    if (maxPrice) {
+        whereClause.push(`price <= ${maxPrice}`);
+    }
+    if (category) {
+        whereClause.push(`category = '${category}'`);
+    }
+    let where = whereClause.length > 0 ? `WHERE ${whereClause.join(' AND ')}` : '';
+
+    const sql = `SELECT * FROM ${table} ${where}`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
 module.exports = {
     requestOne,
     insertItem,
-    getUserCredentials
+    getUserCredentials,
+    findItem,
+    requestAll,
+    filterItem
 }

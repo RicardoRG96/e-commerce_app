@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const { requestOne, insertItem, getUserCredentials } = require('../db/services');
+const { insertItem, getUserCredentials, findItem, requestAll, filterItem } = require('../db/services');
 const { body, query, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -29,7 +29,7 @@ function verifyToken(req, res, next) {
 
 router.post('/register',
   body('name').isLength({ min: 5 }).escape(),
-  body('email').isEmail(),
+  body('email').isEmail().notEmpty(),
   body('password').isLength({ min: 7 }).escape(),
   function(req, res, next) {
     const errors = validationResult(req);
@@ -97,5 +97,45 @@ router.post('/login',
     }
   }
 );
+
+router.get('/products/search',
+  query('name').notEmpty().escape().trim(), 
+  function(req, res, next) {
+    const errors = validationResult(req.query);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { name } = req.query;
+    findItem('products', 'name', name, (err, product) => {
+      if (err) {
+        return next(err);
+      }
+      res.status(200).json(product);
+    });
+  }
+);
+
+router.get('/products', function(req, res, next) {
+  const query = req.query;
+
+  filterItem('products', query, (err, products) => {
+    if (err) {
+      return next(err);
+    }
+    if (!products.length) {
+      return res.send('No products were found with the selected filters');
+    }
+    res.status(200).json(products);
+  });
+});
+
+router.get('/products', function(req, res, next) {
+  requestAll('products', (err, products) => {
+    if (err) {
+      return next(err);
+    }
+    res.status(200).json(products)
+  });
+});
 
 module.exports = router;
