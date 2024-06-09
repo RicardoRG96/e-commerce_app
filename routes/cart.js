@@ -51,8 +51,8 @@ router.delete('/item',
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const id = req.body.id;
-    requestOne('cart_items', id, (err, cartItem) => {
+    const cartItemId = req.body.id;
+    requestOne('cart_items', 'id', cartItemId, (err, cartItem) => {
       if (err) {
         return next(err);
       }

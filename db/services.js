@@ -1,7 +1,7 @@
 const db = require('./config');
 
-function requestOne(table, id, callback) {
-    const sql = `SELECT * FROM ${table} WHERE id = ${id}`;
+function requestOne(table, column, id, callback) {
+    const sql = `SELECT * FROM ${table} WHERE ${column} = ${id}`;
 
     db.any(sql)
         .then(result => {
@@ -91,10 +91,10 @@ function filterItem(table, item, callback) {
 
 function getCartItems(id, callback) {
     const sql = `SELECT c.id AS cart_id, 
-        c.user_id, 
-        u.name AS user_name, 
-        p.name AS product_name, 
-        c.quantity
+            c.user_id, 
+            u.name AS user_name, 
+            p.name AS product_name, 
+            c.quantity
         FROM cart_items c
         INNER JOIN users u ON c.user_id = u.id
         INNER JOIN products p ON c.product_id = p.id
@@ -121,6 +121,29 @@ function deleteItem(table, id, callback) {
         })
 }
 
+function getOrderDetails(userId, orderId, callback) {
+    const sql = `SELECT o.user_id, 
+        oi.order_id, 
+        oi.product_id, 
+        p.name AS product_name, 
+        p.price AS product_price, 
+        oi.quantity, 
+        o.status AS order_status, 
+        o.created_at AS order_date
+    FROM orders o
+    INNER JOIN order_items oi ON o.id = oi.order_id
+    INNER JOIN products p ON oi.product_id = p.id
+    WHERE user_id = ${userId} AND order_id = ${orderId}`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
 module.exports = {
     requestOne,
     insertItem,
@@ -129,5 +152,6 @@ module.exports = {
     requestAll,
     filterItem,
     getCartItems,
-    deleteItem
+    deleteItem,
+    getOrderDetails
 }
