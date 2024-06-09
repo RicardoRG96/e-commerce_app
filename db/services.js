@@ -4,7 +4,7 @@ function requestOne(table, id, callback) {
     const sql = `SELECT * FROM ${table} WHERE id = ${id}`;
 
     db.any(sql)
-        .then(([result]) => {
+        .then(result => {
             callback(null, result);
         })
         .catch(err => {
@@ -89,11 +89,45 @@ function filterItem(table, item, callback) {
         })
 }
 
+function getCartItems(id, callback) {
+    const sql = `SELECT c.id AS cart_id, 
+        c.user_id, 
+        u.name AS user_name, 
+        p.name AS product_name, 
+        c.quantity
+        FROM cart_items c
+        INNER JOIN users u ON c.user_id = u.id
+        INNER JOIN products p ON c.product_id = p.id
+        WHERE c.user_id = ${id}`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function deleteItem(table, id, callback) {
+    const sql = `DELETE FROM ${table} WHERE id = ${id}`;
+
+    db.any(sql)
+        .then(() => {
+            callback(null);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
 module.exports = {
     requestOne,
     insertItem,
     getUserCredentials,
     findItem,
     requestAll,
-    filterItem
+    filterItem,
+    getCartItems,
+    deleteItem
 }

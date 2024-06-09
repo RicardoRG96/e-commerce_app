@@ -1,20 +1,28 @@
 var express = require('express');
 var router = express.Router();
-const { findItem, requestAll } = require('../db/services');
+const { findItem, requestAll, filterItem } = require('../db/services');
 const { query, validationResult } = require('express-validator');
 
-/* GET users listing. */
-// router.get('/', function(req, res, next) {
-//   res.send('respond with a resource products');
-// });
-
 router.get('/', function(req, res, next) {
-  requestAll('products', (err, products) => {
-    if (err) {
-      return next(err);
-    }
-    res.status(200).json(products)
-  });
+  const query = req.query;
+  if (query) {
+    filterItem('products', query, (err, products) => {
+      if (err) {
+        return next(err);
+      }
+      if (!products.length) {
+        return res.send('No products were found with the selected filters');
+      }
+      res.status(200).json(products);
+    });
+  } else {
+    requestAll('products', (err, products) => {
+      if (err) {
+        return next(err);
+      }
+      res.status(200).json(products)
+    }); 
+  }
 });
 
 router.get('/search',
