@@ -12,7 +12,7 @@ router.get('/', function(req, res, next) {
 router.get('/orders/details',
   query('userId').isInt().escape(),
   query('orderId').isInt().escape(),
-  verifyToken, 
+  // verifyToken, 
   function(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

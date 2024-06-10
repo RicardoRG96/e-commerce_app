@@ -93,7 +93,9 @@ function getCartItems(id, callback) {
     const sql = `SELECT c.id AS cart_id, 
             c.user_id, 
             u.name AS user_name, 
-            p.name AS product_name, 
+            p.name AS product_name,
+            p.category AS product_description,
+            p.price AS product_price, 
             c.quantity
         FROM cart_items c
         INNER JOIN users u ON c.user_id = u.id

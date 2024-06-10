@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store</title>
+</head>
+<body>
+    <div>
+        <button id="payment">
+            Pagar
+        </button>
+    </div>
+    <script defer>
+        const paymentBtn = document.getElementById('payment');
+        paymentBtn.addEventListener('click', async () => {
+            const res = await fetch('http://localhost:3000/api/payment/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    productName: "iPhone 14",
+                    productDescription: "Smartphone",
+                    productPrice: 99999,
+                    quantity: 1
+                })
+            });
+            const data = await res.json();
+            console.log(data);
+            window.location.href = data.url;
+        })
+    </script>
+</body>
+</html>

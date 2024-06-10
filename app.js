@@ -8,11 +8,20 @@ var indexRouter = require('./routes/index');
 var myAccountRouter = require('./routes/myAccount');
 var productsRouter = require('./routes/products');
 var cartRouter = require('./routes/cart');
+var paymentRouter = require('./routes/payment');
+var webhookRouter = require('./routes/webhook');
 
 var app = express();
 
 app.use(logger('dev'));
-app.use(express.json());
+// app.use(express.json());
+app.use((req, res, next) => {
+  if (req.originalUrl === '/webhook') {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -21,6 +30,8 @@ app.use('/', indexRouter);
 app.use('/api/myaccount', myAccountRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/cart', cartRouter);
+app.use('/api/payment', paymentRouter);
+app.use('/', webhookRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
