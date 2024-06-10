@@ -10,24 +10,11 @@ router.get('/', function(req, res, next) {
     
 });
 
-// router.post('/create-payment-intent', async function(req, res, next) {
-//     try {
-//         const { amount } = req.body;
-//         const paymentIntent = await stripe.paymentIntents.create({
-//             amount: amount,
-//             currency: 'usd',
-//         });
-//         res.status(201).json({ clientSecret: paymentIntent.client_secret });
-//     } catch (err) {
-//         res.status(500).json(err)
-//     }
-// });
-
 router.post('/create-checkout-session', //añadir verifyToken
-    body('productName').notEmpty().escape(),
-    body('productDescription').notEmpty().escape(),
-    body('productPrice').escape(),
-    body('quantity').escape(),
+    body('userId').isInt().escape(),
+    body('products').notEmpty().escape(),
+    body('description').notEmpty().escape(),
+    body('total').isInt().escape(),
     async function(req, res, next) {
         try {
             const errors = validationResult(req);
@@ -35,24 +22,27 @@ router.post('/create-checkout-session', //añadir verifyToken
                 return res.status(400).json({ errors: errors.array() });
             }
 
-            const { productName, productDescription, productPrice, quantity } = req.body;
+            const { userId, products, description, total } = req.body;
             const paymentSession = await stripe.checkout.sessions.create({
                 success_url: 'http://localhost:3000/success.html',
                 cancel_url: 'http://localhost:3000/index.html',
+                metadata: {
+                    user_id: userId
+                },
                 line_items: [
                     {
                         price_data: {
                             product_data: {
-                                name: productName,
-                                description: productDescription
+                                name: products,
+                                description: description
                             },
                             currency: 'usd',
-                            unit_amount: productPrice
+                            unit_amount: total
                         },
-                        quantity: quantity
-                    }
+                        quantity: 1
+                    },
                 ],
-                mode: 'payment'
+                mode: 'payment',
             });
             res.status(200).json(paymentSession);
         } catch(err) {

@@ -92,7 +92,8 @@ function filterItem(table, item, callback) {
 function getCartItems(id, callback) {
     const sql = `SELECT c.id AS cart_id, 
             c.user_id, 
-            u.name AS user_name, 
+            u.name AS user_name,
+            c.product_id,
             p.name AS product_name,
             p.category AS product_description,
             p.price AS product_price, 
@@ -111,8 +112,8 @@ function getCartItems(id, callback) {
         })
 }
 
-function deleteItem(table, id, callback) {
-    const sql = `DELETE FROM ${table} WHERE id = ${id}`;
+function deleteItem(table, column, id, callback) {
+    const sql = `DELETE FROM ${table} WHERE ${column} = ${id}`;
 
     db.any(sql)
         .then(() => {
@@ -146,6 +147,54 @@ function getOrderDetails(userId, orderId, callback) {
         })
 }
 
+function subtractAProductFromCart(productId, userId, callback) {
+    const sql = `UPDATE cart_items SET quantity = quantity - 1 WHERE product_id = ${productId} AND user_id = ${userId} RETURNING *`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function addAProductToCart(productId, userId, callback) {
+    const sql = `UPDATE cart_items SET quantity = quantity + 1 WHERE product_id = ${productId} AND user_id = ${userId} RETURNING *`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function getOneFromCart(userId, productId, callback) {
+    const sql = `SELECT * FROM cart_items WHERE user_id = ${userId} AND product_id = ${productId}`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function deleteOneFromCart(userId, productId, callback) {
+    const sql = `DELETE FROM cart_items WHERE user_id = ${userId} AND product_id = ${productId}`;
+
+    db.any(sql)
+        .then(() => {
+            callback(null);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
 module.exports = {
     requestOne,
     insertItem,
@@ -155,5 +204,9 @@ module.exports = {
     filterItem,
     getCartItems,
     deleteItem,
-    getOrderDetails
+    getOrderDetails,
+    subtractAProductFromCart,
+    addAProductToCart,
+    getOneFromCart,
+    deleteOneFromCart
 }

@@ -4,7 +4,7 @@ var router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 const { insertItem, getCartItems, requestOne, deleteItem } = require('../db/services');
 
-router.post('/webhook', express.raw({ type: 'application/json' }), (req, res, next) => {
+router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res, next) => {
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   
@@ -22,12 +22,14 @@ router.post('/webhook', express.raw({ type: 'application/json' }), (req, res, ne
   
       // Aquí puedes manejar la lógica de negocio, como actualizar el pedido en tu base de datos
 
-      deleteItem('orders', 7, err => {
-        if (err) {
-            return next(err);
-        }
-        res.status(200)
-      })
+      const sessionWithLineItems = await stripe.checkout.sessions.retrieve(
+        event.data.object.id
+      );
+      const lineItems = sessionWithLineItems.metadata;
+      console.log(lineItems.user_id); //string
+
+      //escribir 'deleteItem()'
+
     }
   
     res.status(200).send('Received webhook');
