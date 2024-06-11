@@ -195,6 +195,84 @@ function deleteOneFromCart(userId, productId, callback) {
         })
 }
 
+function createOrderRecord(userId, total, callback) {
+    const sql = `INSERT INTO orders (user_id, total, status) VALUES (${userId}, ${total}, 'Pending') RETURNING *`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function getOrderItems(callback) {
+    const sql = `SELECT MAX(o.id) AS order_id, 
+        c.product_id,
+        c.quantity,
+        p.price
+    FROM orders o
+    INNER JOIN cart_items c ON o.user_id = c.user_id
+    INNER JOIN products p ON c.product_id = p.id
+    GROUP BY c.product_id, c.quantity, p.price
+    ORDER BY c.product_id;`
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function updateDataBaseTables(userId, total, callback) {
+    createOrderRecord(userId, total, (err, order) => {
+        if (err) {
+            return console.log(err);
+        }
+        getOrderItems((err, items) => {
+            if (err) {
+                return console.log(err);
+            }
+            const itemsValues = items.map(item => `(${item.order_id}, ${item.product_id}, ${item.quantity}, ${item.price})`).join(', ');
+            const stockUpdates = items.map(item => `UPDATE products SET stock = stock - ${item.quantity} WHERE id = ${item.product_id}`).join('; ');
+            const sql = `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ${itemsValues};
+                DELETE FROM cart_items WHERE user_id = ${userId};
+                ${stockUpdates}`;
+    
+            db.any(sql)
+                .then(result => {
+                    callback(null, result);
+                })
+                .catch(err => {
+                    callback(err);
+                })
+        });
+    });
+
+    // getOrderItems((err, items) => {
+    //     if (err) {
+    //         return console.log(err);
+    //     }
+    //     const itemsValues = items.map(item => `(${item.order_id}, ${item.product_id}, ${item.quantity}, ${item.price})`).join(', ');
+    //     const stockUpdates = items.map(item => `UPDATE products SET stock = stock - ${item.quantity} WHERE id = ${item.product_id}`).join('; ');
+    //     const sql = `INSERT INTO orders (user_id, total, status) VALUES (${userId}, ${total}, 'Pending'); 
+    //         INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ${itemsValues}; 
+    //         DELETE FROM cart_items WHERE user_id = ${userId};
+    //         ${stockUpdates};`;
+
+    //     db.any(sql)
+    //         .then(result => {
+    //             callback(null, result);
+    //         })
+    //         .catch(err => {
+    //             callback(err);
+    //         })
+    // });
+}
+
 module.exports = {
     requestOne,
     insertItem,
@@ -208,5 +286,6 @@ module.exports = {
     subtractAProductFromCart,
     addAProductToCart,
     getOneFromCart,
-    deleteOneFromCart
+    deleteOneFromCart,
+    updateDataBaseTables,
 }

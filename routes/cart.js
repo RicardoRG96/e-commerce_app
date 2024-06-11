@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-const { insertItem,
+const { 
+  insertItem,
   requestOne,
   deleteItem,
   getCartItems,
@@ -36,7 +37,7 @@ router.post('/add-to-cart',
   body('user_id').isInt().escape(),
   body('product_id').isInt().escape(),
   body('quantity').isInt().escape(),
-  // verifyToken, 
+  verifyToken, 
   function(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -101,7 +102,7 @@ router.put('/subtract-one-from-cart',
 router.delete('/remove-product',
   body('user_id').isInt().escape(),
   body('product_id').isInt().escape(),
-  // verifyToken,
+  verifyToken,
   function(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

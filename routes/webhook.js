@@ -2,7 +2,7 @@ require('dotenv').config();
 var express = require('express');
 var router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
-const { insertItem, getCartItems, requestOne, deleteItem } = require('../db/services');
+const { updateDataBaseTables } = require('../db/services');
 
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res, next) => {
     const sig = req.headers['stripe-signature'];
@@ -19,19 +19,24 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-  
-      // Aquí puedes manejar la lógica de negocio, como actualizar el pedido en tu base de datos
 
       const sessionWithLineItems = await stripe.checkout.sessions.retrieve(
         event.data.object.id
       );
       const lineItems = sessionWithLineItems.metadata;
-      console.log(lineItems.user_id); //string
 
-      //escribir 'deleteItem()'
+      const userId = parseInt(lineItems.user_id);
+      const total = parseFloat(lineItems.total / 100);
+
+      updateDataBaseTables(userId, total, (err, updates) => {
+        if (err) {
+          console.log(err);
+          return next(err);
+        }
+        console.log('Base de datos actualizada con exito');
+      });
 
     }
-  
     res.status(200).send('Received webhook');
 });
 

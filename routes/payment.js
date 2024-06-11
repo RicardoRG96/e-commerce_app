@@ -27,7 +27,9 @@ router.post('/create-checkout-session', //añadir verifyToken
                 success_url: 'http://localhost:3000/success.html',
                 cancel_url: 'http://localhost:3000/index.html',
                 metadata: {
-                    user_id: userId
+                    user_id: userId,
+                    total: total,
+                    status: 'Pending'
                 },
                 line_items: [
                     {
