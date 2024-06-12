@@ -207,7 +207,7 @@ function createOrderRecord(userId, total, callback) {
         })
 }
 
-function getOrderItems(callback) {
+function getOrderItems(userId, callback) {
     const sql = `SELECT MAX(o.id) AS order_id, 
         c.product_id,
         c.quantity,
@@ -215,6 +215,7 @@ function getOrderItems(callback) {
     FROM orders o
     INNER JOIN cart_items c ON o.user_id = c.user_id
     INNER JOIN products p ON c.product_id = p.id
+    WHERE o.user_id = ${userId}
     GROUP BY c.product_id, c.quantity, p.price
     ORDER BY c.product_id;`
 
@@ -232,7 +233,7 @@ function updateDataBaseTables(userId, total, callback) {
         if (err) {
             return console.log(err);
         }
-        getOrderItems((err, items) => {
+        getOrderItems(userId, (err, items) => {
             if (err) {
                 return console.log(err);
             }
@@ -251,26 +252,60 @@ function updateDataBaseTables(userId, total, callback) {
                 })
         });
     });
+}
 
-    // getOrderItems((err, items) => {
-    //     if (err) {
-    //         return console.log(err);
-    //     }
-    //     const itemsValues = items.map(item => `(${item.order_id}, ${item.product_id}, ${item.quantity}, ${item.price})`).join(', ');
-    //     const stockUpdates = items.map(item => `UPDATE products SET stock = stock - ${item.quantity} WHERE id = ${item.product_id}`).join('; ');
-    //     const sql = `INSERT INTO orders (user_id, total, status) VALUES (${userId}, ${total}, 'Pending'); 
-    //         INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ${itemsValues}; 
-    //         DELETE FROM cart_items WHERE user_id = ${userId};
-    //         ${stockUpdates};`;
+function updateItem(table, id, item, callback) {
+    const keys = Object.keys(item);
+    const updates = keys.map(key => `${key} = '${item[key]}'`).join(', ');
+    const sql = `UPDATE ${table} SET ${updates} WHERE id = ${id} RETURNING *`;
 
-    //     db.any(sql)
-    //         .then(result => {
-    //             callback(null, result);
-    //         })
-    //         .catch(err => {
-    //             callback(err);
-    //         })
-    // });
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function getOrderProducts(orderId, callback) {
+    const sql = `SELECT order_id, product_id, SUM(quantity) AS quantity FROM order_items
+    WHERE order_id = ${orderId}
+    GROUP BY order_id, product_id
+    ORDER BY product_id;`
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function deleteOrders(orderId, callback) {
+    getOrderProducts(orderId, (err, orderItmes) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        const updates = orderItmes.map(order => `UPDATE products SET stock = stock + ${order.quantity} WHERE id = ${order.product_id}`).join('; ');
+
+        const sql = `BEGIN;
+        ${updates};
+        DELETE FROM order_items WHERE order_id = ${orderId};
+        DELETE FROM orders WHERE id = ${orderId};
+        COMMIT;`;
+
+        db.any(sql)
+            .then(() => {
+                callback(null);
+            })
+            .catch(err => {
+                callback(err);
+            })
+    })    
+
 }
 
 module.exports = {
@@ -288,4 +323,6 @@ module.exports = {
     getOneFromCart,
     deleteOneFromCart,
     updateDataBaseTables,
+    updateItem,
+    deleteOrders
 }

@@ -10,6 +10,7 @@ var productsRouter = require('./routes/products');
 var cartRouter = require('./routes/cart');
 var paymentRouter = require('./routes/payment');
 var webhookRouter = require('./routes/webhook');
+var adminRouter = require('./routes/admin');
 
 var app = express();
 
@@ -32,6 +33,7 @@ app.use('/api/products', productsRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/', webhookRouter);
+app.use('/api/admin', adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -46,7 +48,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.send(err);
+  res.send(err + 'error');
 });
 
 module.exports = app;
