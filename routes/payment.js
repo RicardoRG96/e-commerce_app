@@ -10,7 +10,9 @@ router.get('/', function(req, res, next) {
     
 });
 
-router.post('/create-checkout-session', //añadir verifyToken
+//redirecciona a una plataforma de pago de stripe
+router.post('/create-checkout-session',
+    verifyToken, 
     body('userId').isInt().escape(),
     body('products').notEmpty().escape(),
     body('description').notEmpty().escape(),

@@ -4,7 +4,6 @@ const { getUserCredentials, insertItem } = require('../db/services');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const verifyToken = require('../utils');
 const SECRET_KEY = process.env.JWT_PASSWORD;
 
 /* GET home page. */

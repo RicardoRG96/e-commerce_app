@@ -9,6 +9,7 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource, account');
 });
 
+//da detalles de una orden en especifico, como por ejemplo los productos comprados, el precio etc.
 router.get('/orders/details',
   query('userId').isInt().escape(),
   query('orderId').isInt().escape(),
@@ -28,6 +29,7 @@ router.get('/orders/details',
   }
 );
 
+//para acceder a todas las ordenes de determinado cliente, necesario para mostrar un historial de pedidos
 router.get('/orders/:id', verifyToken, function(req, res, next) {
   const id = req.params.id;
   requestOne('orders', 'user_id', id, (err, orders) => {
@@ -38,7 +40,8 @@ router.get('/orders/:id', verifyToken, function(req, res, next) {
   });
 });
 
-router.get('/:id', verifyToken, function(req, res, next) { //obtener infor del user y mostrar datos en una pagina de 'mi perfil'
+//obtener info del user y mostrar datos en una pagina de 'mi perfil'
+router.get('/:id', verifyToken, function(req, res, next) {
   const id = req.params.id;
   requestOne('users', 'id', id, (err, user) => {
     if (err) {

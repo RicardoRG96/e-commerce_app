@@ -16,7 +16,7 @@ const verifyToken = require('../utils');
 //para obtener los elementos actuales en el carrito de compras
 router.get('/',
   query('user_id').isInt().escape(),
-  // verifyToken,
+  verifyToken,
   function(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -59,6 +59,7 @@ router.post('/add-to-cart',
 
 //actualiza la columna 'quantity' de la tabla 'cart_items', pensado para cuando el usario pulse alguna tecla de '+' a un producto
 router.put('/add-one-to-cart',
+  verifyToken,
   body('user_id').isInt().escape(), 
   body('product_id').isInt().escape(),
   function(req, res, next) {
@@ -80,6 +81,7 @@ router.put('/add-one-to-cart',
 
 //actualiza la columna 'quantity' de la tabla 'cart_items', pensado para cuando el usario pulse alguna tecla de '-' a un producto
 router.put('/subtract-one-from-cart',
+  verifyToken,
   body('user_id').isInt().escape(),
   body('product_id').isInt().escape(), 
   function(req, res, next) {
@@ -131,6 +133,7 @@ router.delete('/remove-product',
 
 // para vaciar totalmente el carrito de compras del usuario
 router.delete('/clear-out-cart',
+  verifyToken,
   body('user_id').isInt().escape(), 
   function(req, res, next) {
     const errors = validationResult(req);

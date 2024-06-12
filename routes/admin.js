@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const { requestAll, insertItem, updateItem, deleteOrders, requestOne } = require('../db/services');
-const { query, body, validationResult } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 const verifyToken = require('../utils');
 
 /* GET users listing. */
@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
 });
 
 //obtiene todas las ordenes en el sistema
-router.get('/orders', function(req, res, next) {
+router.get('/orders', verifyToken, function(req, res, next) {
     requestAll('orders', (err, orders) => {
         if (err) {
             return next(err);
@@ -21,6 +21,7 @@ router.get('/orders', function(req, res, next) {
 
 //añade un nuevo producto a la base de datos
 router.post('/add-new-product',
+    verifyToken,
     body('name').notEmpty().escape(),
     body('description').notEmpty().escape(),
     body('price').isNumeric().escape(),
@@ -44,6 +45,7 @@ router.post('/add-new-product',
 
 //actualiza datos de los productos
 router.put('/update-product-data/:id',
+    verifyToken,
     body('id').isInt().escape(),
     body('price').isNumeric().escape(),
     body('stock').isInt().escape(),
@@ -79,6 +81,7 @@ router.put('/update-product-data/:id',
 
 //actualiza el estado de una orden en especifico
 router.put('/update-order-status/:id',
+    verifyToken,
     body('id').isInt().escape(),
     body('status').notEmpty().escape(), 
     function(req, res, next) {
@@ -103,6 +106,7 @@ router.put('/update-order-status/:id',
 
 //elimina una orden y repone automaticamente el stock de productos
 router.delete('/delete-order',
+    verifyToken,
     body('orderId').isInt().escape(), 
     function(req, res, next) { 
         const errors = validationResult(req);
