@@ -5,26 +5,37 @@ const { query, validationResult } = require('express-validator');
 
 //filtra productos en base a las caracteristicas marcadas enviadas en el campo query, si no se envia info en query
 //recupera todos los productos disponibles
+
+// router.get('/', function(req, res, next) {
+//   const query = req.query;
+//   if (query) {
+//     filterItem('products', query, (err, products) => {
+//       if (err) {
+//         return next(err);
+//       }
+//       if (!products.length) {
+//         return res.json({ message: 'No products were found with the selected filters' });
+//       }
+//       res.status(200).json(products);
+//     });
+//   } else {
+//     requestAll('products', (err, products) => {
+//       if (err) {
+//         return next(err);
+//       }
+//       res.status(200).json(products)
+//     }); 
+//   }
+// });
+
+// nuevo enfoque: no deberia filtrar productos en el backend, por ende, a las peticiones de productos, se envian todos los productos
 router.get('/', function(req, res, next) {
-  const query = req.query;
-  if (query) {
-    filterItem('products', query, (err, products) => {
-      if (err) {
-        return next(err);
-      }
-      if (!products.length) {
-        return res.send('No products were found with the selected filters');
-      }
-      res.status(200).json(products);
-    });
-  } else {
-    requestAll('products', (err, products) => {
-      if (err) {
-        return next(err);
-      }
-      res.status(200).json(products)
-    }); 
-  }
+  requestAll('products', (err, products) => {
+    if (err) {
+      return next(err);
+    }
+    res.status(200).json(products)
+  }); 
 });
 
 //para buscar un producto en una barra de busqueda

@@ -1,4 +1,4 @@
-const db = require('./config');
+const { db } = require('./config');
 
 function requestOne(table, column, id, callback) {
     const sql = `SELECT * FROM ${table} WHERE ${column} = ${id}`;

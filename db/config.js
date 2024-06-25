@@ -6,9 +6,13 @@ const cn = {
     password: process.env.DB_PASSWORD,
     host: 'localhost',
     port: 5432,
-    database: 'e-commerce_project'
+    // database: 'e-commerce_test'
+    database: process.env.NODE_ENV === 'test' ? 'e-commerce_test' : 'e-commerce_project'
 };
 
 const db = pgp(cn);
 
-module.exports = db;
+module.exports = {
+    db,
+    pgp
+};
