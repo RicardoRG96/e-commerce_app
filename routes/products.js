@@ -42,7 +42,7 @@ router.get('/', function(req, res, next) {
 router.get('/search',
   query('name').notEmpty().escape().trim(), 
   function(req, res, next) {
-    const errors = validationResult(req.query);
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
@@ -50,6 +50,9 @@ router.get('/search',
     findItem('products', 'name', name, (err, product) => {
       if (err) {
         return next(err);
+      }
+      if (!product.length) {
+        return res.sendStatus(404);
       }
       res.status(200).json(product);
     });

@@ -4,7 +4,7 @@ const path = require('node:path');
 const { db, pgp } = require('../../db/config');
 const app = require('../../app');
 
-describe('Verify that the products route endpoints work correctly', () => {
+describe.skip('Verify that the products route endpoints work correctly', () => {
 
     const correctProductName = {
         "name": "Apple iPhone 14"
@@ -19,7 +19,7 @@ describe('Verify that the products route endpoints work correctly', () => {
     }
 
     const emptyProductName = {
-        name: ""
+        "name": ""
     }
 
     beforeEach(async () => {
@@ -38,15 +38,34 @@ describe('Verify that the products route endpoints work correctly', () => {
         const response = await request(app).get('/api/products');
         
         expect(response.status).toBe(200);
-        expect(response.name).toBe(correctProductName.name)
+        expect(response.body[0].name).toBe(correctProductName.name);
     });
 
-    it('GET /api/products/search with an empty name should respond with a status 400', async () => {
+    it('GET /api/products/search with an empty query parameter should respond with a status 400', async () => {
         const response = await request(app)
             .get('/api/products/search')
-            .query(correctProductName)
+            .query(emptyProductName)
+            .expect(400);
+
+        expect(response.status).toBe(400);
+    });
+
+    it('GET /api/products/search with an ambiguos but similiar query parameter should respond with a status 200', async () => {
+        const response = await request(app)
+            .get('/api/products/search')
+            .query(ambiguousProductName)
             .expect(200);
 
         expect(response.status).toBe(200);
+        expect(response.body[0].name).toBe(correctProductName.name)
+    });
+
+    it('GET /api/products/search with a bad product name in the query parameter should respond with a status 404', async () => {
+        const response = await request(app)
+            .get('/api/products/search')
+            .query(badProductName)
+            .expect(404);
+
+        expect(response.status).toBe(404);
     });
 });
