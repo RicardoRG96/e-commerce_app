@@ -4,7 +4,7 @@ const path = require('node:path');
 const { db, pgp } = require('../../db/config');
 const app = require('../../app');
 
-describe.skip('Verify that the products route endpoints work correctly', () => {
+describe.skip('Product API endpoints', () => {
 
     const correctProductName = {
         "name": "Apple iPhone 14"
@@ -34,38 +34,48 @@ describe.skip('Verify that the products route endpoints work correctly', () => {
         pgp.end();
     });
     
-    it('GET /api/products should get all products', async () => {
-        const response = await request(app).get('/api/products');
-        
-        expect(response.status).toBe(200);
-        expect(response.body[0].name).toBe(correctProductName.name);
-    });
+    describe('GET /api/products', () => {
 
-    it('GET /api/products/search with an empty query parameter should respond with a status 400', async () => {
-        const response = await request(app)
-            .get('/api/products/search')
-            .query(emptyProductName)
-            .expect(400);
+        const endpoint = '/api/products';
 
-        expect(response.status).toBe(400);
-    });
+        it('Should get all products', async () => {
+            const response = await request(app).get(endpoint);
+            
+            expect(response.status).toBe(200);
+            expect(response.body[0].name).toBe(correctProductName.name);
+        });
+    })
 
-    it('GET /api/products/search with an ambiguos but similiar query parameter should respond with a status 200', async () => {
-        const response = await request(app)
-            .get('/api/products/search')
-            .query(ambiguousProductName)
-            .expect(200);
+    describe('GET /api/products/search', () => {
 
-        expect(response.status).toBe(200);
-        expect(response.body[0].name).toBe(correctProductName.name)
-    });
+        const endpoint = '/api/products/search';
 
-    it('GET /api/products/search with a bad product name in the query parameter should respond with a status 404', async () => {
-        const response = await request(app)
-            .get('/api/products/search')
-            .query(badProductName)
-            .expect(404);
-
-        expect(response.status).toBe(404);
+        it('Should respond with a status 400 if an empty query parameter is send', async () => {
+            const response = await request(app)
+                .get(endpoint)
+                .query(emptyProductName)
+                .expect(400);
+    
+            expect(response.status).toBe(400);
+        });
+    
+        it('Should respond with a status 200 if an ambiguos but similiar query parameter is send', async () => {
+            const response = await request(app)
+                .get(endpoint)
+                .query(ambiguousProductName)
+                .expect(200);
+    
+            expect(response.status).toBe(200);
+            expect(response.body[0].name).toBe(correctProductName.name)
+        });
+    
+        it('Should respond with a status 404 if a bad product name is send in the query parameter ', async () => {
+            const response = await request(app)
+                .get(endpoint)
+                .query(badProductName)
+                .expect(404);
+    
+            expect(response.status).toBe(404);
+        });
     });
 });

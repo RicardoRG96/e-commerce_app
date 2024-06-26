@@ -27,6 +27,9 @@ router.get('/',
       if (err) {
         return next(err);
       }
+      if (!items.length) {
+        return res.sendStatus(404);
+      }
       res.status(200).json(items);
     });
   }
@@ -44,8 +47,6 @@ router.post('/add-to-cart',
       return res.status(400).json({ errors: errors.array() });
     }
     const cartItem = req.body;
-    const productId = req.body.product_id;
-    const userId = req.body.user_id;
 
     insertItem('cart_items', cartItem, (err, nextCartItem) => {
       if (err) {
@@ -132,7 +133,7 @@ router.delete('/remove-product',
 );
 
 // para vaciar totalmente el carrito de compras del usuario
-router.delete('/clear-out-cart',
+router.delete('/empty-the-cart',
   verifyToken,
   body('user_id').isInt().escape(), 
   function(req, res, next) {
