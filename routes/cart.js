@@ -36,31 +36,52 @@ router.get('/',
 );
 
 //para agregar un producto al carro por primera vez
+//verifica si ese producto ya existe para ese usuario, si existe actualiza la columna quantity y si no existe lo inserta
 router.post('/add-to-cart',
   body('user_id').isInt().escape(),
   body('product_id').isInt().escape(),
   body('quantity').isInt().escape(),
-  verifyToken, 
+  // verifyToken, 
   function(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const cartItem = req.body;
-
-    insertItem('cart_items', cartItem, (err, nextCartItem) => {
+    // const cartItem = req.body;
+    const { user_id, product_id } = req.body;
+    getOneFromCart(user_id, product_id, (err, item) => {
       if (err) {
         return next(err);
       }
-      res.status(201).json(nextCartItem);
-    });
+      if (!item) {
+        insertItem('cart_items', cartItem, (err, nextCartItem) => {
+          if (err) {
+            return next(err);
+          }
+          return res.status(201).json(nextCartItem);
+        });
+      }
+      addAProductToCart(product_id, user_id, (err, updatedItem) => {
+        if (err) {
+          return next(err);
+        }
+        res.status(201).json(updatedItem);
+      })
+    })
+
+    // insertItem('cart_items', cartItem, (err, nextCartItem) => {
+    //   if (err) {
+    //     return next(err);
+    //   }
+    //   res.status(201).json(nextCartItem);
+    // });
   }
 );
 
 
 //actualiza la columna 'quantity' de la tabla 'cart_items', pensado para cuando el usario pulse alguna tecla de '+' a un producto
 router.put('/add-one-to-cart',
-  verifyToken,
+  // verifyToken,
   body('user_id').isInt().escape(), 
   body('product_id').isInt().escape(),
   function(req, res, next) {
@@ -82,7 +103,7 @@ router.put('/add-one-to-cart',
 
 //actualiza la columna 'quantity' de la tabla 'cart_items', pensado para cuando el usario pulse alguna tecla de '-' a un producto
 router.put('/subtract-one-from-cart',
-  verifyToken,
+  // verifyToken,
   body('user_id').isInt().escape(),
   body('product_id').isInt().escape(), 
   function(req, res, next) {
@@ -105,7 +126,7 @@ router.put('/subtract-one-from-cart',
 router.delete('/remove-product',
   body('user_id').isInt().escape(),
   body('product_id').isInt().escape(),
-  verifyToken,
+  // verifyToken,
   function(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -134,7 +155,7 @@ router.delete('/remove-product',
 
 // para vaciar totalmente el carrito de compras del usuario
 router.delete('/empty-the-cart',
-  verifyToken,
+  // verifyToken,
   body('user_id').isInt().escape(), 
   function(req, res, next) {
     const errors = validationResult(req);
