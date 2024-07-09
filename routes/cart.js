@@ -14,15 +14,10 @@ const { body, query, validationResult } = require('express-validator');
 const verifyToken = require('../utils');
 
 //para obtener los elementos actuales en el carrito de compras
-router.get('/',
-  query('user_id').isInt().escape(),
-  verifyToken,
+router.get('/:user_id',
+  // verifyToken,
   function(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    const id = req.query.user_id;
+    const id = req.params.user_id;
     getCartItems(id, (err, items) => {
       if (err) {
         return next(err);
@@ -47,34 +42,28 @@ router.post('/add-to-cart',
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    // const cartItem = req.body;
+    const cartItem = req.body;
     const { user_id, product_id } = req.body;
     getOneFromCart(user_id, product_id, (err, item) => {
       if (err) {
         return next(err);
       }
-      if (!item) {
+      if (!item.length) {
         insertItem('cart_items', cartItem, (err, nextCartItem) => {
           if (err) {
             return next(err);
           }
-          return res.status(201).json(nextCartItem);
+          res.status(201).json(nextCartItem);
         });
+      } else {
+        addAProductToCart(product_id, user_id, (err, updatedItem) => {
+          if (err) {
+            return next(err);
+          }
+          res.status(201).json(updatedItem);
+        })
       }
-      addAProductToCart(product_id, user_id, (err, updatedItem) => {
-        if (err) {
-          return next(err);
-        }
-        res.status(201).json(updatedItem);
-      })
-    })
-
-    // insertItem('cart_items', cartItem, (err, nextCartItem) => {
-    //   if (err) {
-    //     return next(err);
-    //   }
-    //   res.status(201).json(nextCartItem);
-    // });
+    });
   }
 );
 

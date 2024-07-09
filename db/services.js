@@ -97,7 +97,8 @@ function getCartItems(id, callback) {
             p.name AS product_name,
             p.category AS product_description,
             p.price AS product_price, 
-            c.quantity
+            c.quantity,
+            p.image_src AS product_image_src
         FROM cart_items c
         INNER JOIN users u ON c.user_id = u.id
         INNER JOIN products p ON c.product_id = p.id
