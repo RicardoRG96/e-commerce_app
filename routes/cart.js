@@ -22,9 +22,6 @@ router.get('/:user_id',
       if (err) {
         return next(err);
       }
-      if (!items.length) {
-        return res.sendStatus(404);
-      }
       res.status(200).json(items);
     });
   }
