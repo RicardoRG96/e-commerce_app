@@ -104,7 +104,7 @@ router.put('/update-password',
           return next(err);
         }
         if (!userCredentials.length) {
-          return res.status(404);
+          return res.status(404); 
         }
         bcrypt.compare(currentPassword, userCredentials[0].password)
           .then(matchPassword => {

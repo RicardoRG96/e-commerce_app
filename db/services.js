@@ -133,7 +133,8 @@ function getOrderDetails(userId, orderId, callback) {
         p.price AS product_price, 
         oi.quantity, 
         o.status AS order_status, 
-        o.created_at AS order_date
+        o.created_at AS order_date,
+        p.image_src AS product_image_src
     FROM orders o
     INNER JOIN order_items oi ON o.id = oi.order_id
     INNER JOIN products p ON oi.product_id = p.id
