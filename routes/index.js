@@ -1,3 +1,4 @@
+require('dotenv');
 var express = require('express');
 var router = express.Router();
 const { getUserCredentials, insertItem } = require('../db/services');
@@ -66,8 +67,8 @@ router.post('/login',
         bcrypt.compare(password, credentials.password)
           .then(matchPassword => {
             if (email === credentials.email && matchPassword) {
-              const token = jwt.sign({ email }, SECRET_KEY, { expiresIn: '2h' });
-              return res.status(200).json({ token, message: 'Successful login' });
+              const token = jwt.sign({ email }, SECRET_KEY, { expiresIn: '3h' });
+              return res.status(200).json({ token, message: 'Successful login', userId: credentials.id, userName: credentials.name });
             } else {
               return res.status(401).json({ message: 'Authentication failed' });
             }

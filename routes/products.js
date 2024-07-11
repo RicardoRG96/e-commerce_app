@@ -34,7 +34,7 @@ router.get('/', function(req, res, next) {
     if (err) {
       return next(err);
     }
-    res.status(200).json(products)
+    res.status(200).json(products);
   }); 
 });
 

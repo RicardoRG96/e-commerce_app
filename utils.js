@@ -1,3 +1,4 @@
+require('dotenv');
 const jwt = require('jsonwebtoken');
 
 const SECRET_KEY = process.env.JWT_PASSWORD;
@@ -13,7 +14,7 @@ function verifyToken(req, res, next) {
       req.email = payload.email;
       next();
     } catch (err) {
-      return res.status(403).json({ message: 'Token not valid', token });
+      return res.status(403).json({ message: 'Token not valid' });
     }
 }
 

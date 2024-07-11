@@ -13,7 +13,7 @@ function requestOne(table, column, id, callback) {
 }
 
 function getUserCredentials(table, email, callback) {
-    const sql = `SELECT email, password FROM ${table} WHERE email = '${email}'`;
+    const sql = `SELECT id, name, email, password FROM ${table} WHERE email = '${email}'`;
 
     db.any(sql)
         .then(([result]) => {
