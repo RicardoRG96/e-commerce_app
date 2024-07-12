@@ -129,10 +129,11 @@ function getOrderDetails(userId, orderId, callback) {
     const sql = `SELECT o.user_id, 
         oi.order_id, 
         oi.product_id, 
-        p.name AS product_name, 
-        p.price AS product_price, 
+        p.name AS product_name, p.price AS product_price,
+        p.description AS product_description,
         oi.quantity, 
-        o.status AS order_status, 
+        o.status AS order_status,
+        o.delivery_date AS order_delivery_date,
         o.created_at AS order_date,
         p.image_src AS product_image_src
     FROM orders o
@@ -310,6 +311,29 @@ function deleteOrders(orderId, callback) {
 
 }
 
+function getUserOrders(userId, callback) {
+    const sql = `SELECT o.id AS order_id,
+        o.user_id AS user_id,
+        o.total AS total,
+        o.status AS order_status,
+        o.created_at AS order_date,
+        o.delivery_date AS order_delivery_date,
+        oi.product_id AS product_id,
+        p.image_src AS product_image_src
+    FROM orders o
+    LEFT JOIN order_items oi ON o.id = oi.order_id
+    LEFT JOIN products p ON oi.product_id = p.id
+    WHERE o.user_id = ${userId};`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
 module.exports = {
     requestOne,
     insertItem,
@@ -326,5 +350,6 @@ module.exports = {
     deleteOneFromCart,
     updateDataBaseTables,
     updateItem,
-    deleteOrders
+    deleteOrders,
+    getUserOrders
 }

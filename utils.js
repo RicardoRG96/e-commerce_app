@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const SECRET_KEY = process.env.JWT_PASSWORD;
 
 function verifyToken(req, res, next) {
-    const header = req.header('Authorization') || '';
+    const header = req.header('Authorization') || ''; 
     const token = header.split(' ')[1];
     if (!token) {
       return res.status(401).json({ message: 'Token not provided'});
