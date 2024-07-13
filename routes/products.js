@@ -34,32 +34,6 @@ const { query, validationResult } = require('express-validator');
 //   }
 // });
 
-router.get('/categories', function(req, res, next) {
-  requestListOfProductsCategories((err, categories) => {
-    if (err) {
-      return next(err);
-    }
-    res.status(200).json(categories);
-  });
-});
-
-// nuevo enfoque: no deberia filtrar productos en el backend, por ende, a las peticiones de productos, se envian todos los productos
-router.get('/:category', function(req, res, next) {
-  const productCategory = req.params.category;
-  requestProductsByCategory(productCategory, (err, products) => {
-    if (err) {
-      return next(err);
-    }
-    res.status(200).json(products);
-  })
-  // requestAll('products', (err, products) => {
-  //   if (err) {
-  //     return next(err);
-  //   }
-  //   res.status(200).json(products);
-  // }); 
-});
-
 //para buscar un producto en una barra de busqueda
 router.get('/search',
   query('name').notEmpty().escape().trim(), 
@@ -80,5 +54,34 @@ router.get('/search',
     });
   }
 );
+
+router.get('/categories', function(req, res, next) {
+  requestListOfProductsCategories((err, categories) => {
+    if (err) {
+      return next(err);
+    }
+    res.status(200).json(categories);
+  });
+});
+
+// nuevo enfoque: no deberia filtrar productos en el backend, por ende, a las peticiones de productos, se envian todos los productos
+router.get('/:category', function(req, res, next) {
+  const productCategory = req.params.category;
+  requestProductsByCategory(productCategory, (err, products) => {
+    if (err) {
+      return next(err);
+    }
+    res.status(200).json(products);
+  })
+});
+
+router.get('/', function(req, res, next) {
+  requestAll('products', (err, products) => {
+    if (err) {
+      return next(err);
+    }
+    res.status(200).json(products);
+  }); 
+});
 
 module.exports = router;
