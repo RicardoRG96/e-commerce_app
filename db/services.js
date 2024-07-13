@@ -334,6 +334,31 @@ function getUserOrders(userId, callback) {
         })
 }
 
+function requestProductsByCategory(productCategory, callback) {
+    const sql = `SELECT * FROM products WHERE category = '${productCategory}'`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
+function requestListOfProductsCategories(callback) {
+    const sql = 'SELECT * FROM products_categories';
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        }
+        )
+}
+
 module.exports = {
     requestOne,
     insertItem,
@@ -351,5 +376,7 @@ module.exports = {
     updateDataBaseTables,
     updateItem,
     deleteOrders,
-    getUserOrders
+    getUserOrders,
+    requestProductsByCategory,
+    requestListOfProductsCategories
 }
