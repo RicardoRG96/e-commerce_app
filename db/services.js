@@ -334,6 +334,29 @@ function getUserOrders(userId, callback) {
         })
 }
 
+function getOneUserOrder(userId, orderId, callback) {
+    const sql = `SELECT o.id AS order_id,
+        o.user_id AS user_id,
+        o.total AS total,
+        o.status AS order_status,
+        o.created_at AS order_date,
+        o.delivery_date AS order_delivery_date,
+        oi.product_id AS product_id,
+        p.image_src AS product_image_src
+    FROM orders o
+    LEFT JOIN order_items oi ON o.id = oi.order_id
+    LEFT JOIN products p ON oi.product_id = p.id
+    WHERE o.user_id = ${userId} AND o.id = ${orderId};`;
+
+    db.any(sql)
+        .then(result => {
+            callback(null, result);
+        })
+        .catch(err => {
+            callback(err);
+        })
+}
+
 function requestProductsByCategory(productCategory, callback) {
     const sql = `SELECT * FROM products WHERE category = '${productCategory}'`;
 
@@ -378,5 +401,6 @@ module.exports = {
     deleteOrders,
     getUserOrders,
     requestProductsByCategory,
-    requestListOfProductsCategories
+    requestListOfProductsCategories,
+    getOneUserOrder
 }

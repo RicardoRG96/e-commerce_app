@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const bcrypt = require('bcrypt');
-const { requestOne, getOrderDetails, updateItem, getUserOrders } = require('../db/services');
+const { requestOne, getOrderDetails, updateItem, getUserOrders, getOneUserOrder } = require('../db/services');
 const { query, validationResult, body } = require('express-validator');
 const verifyToken = require('../utils');
 
@@ -14,7 +14,7 @@ router.get('/', function(req, res, next) {
 router.get('/orders/details',
   query('user_id').isInt().escape(),
   query('order_id').isInt().escape(),
-  // verifyToken, 
+  verifyToken, 
   function(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -50,6 +50,20 @@ router.get('/:id', verifyToken, function(req, res, next) {
     }
     res.status(200).json(user);
   });
+});
+
+router.get('/orders/search/:id',
+  query('userId').notEmpty().isInt().escape(), 
+  // verifyToken, 
+  function(req, res, next) {
+    const orderId = req.params.id;
+    const userId = req.query.userId;
+    getOneUserOrder(userId, orderId, (err, order) => {
+      if (err) {
+        return next(err);
+      }
+      res.status(200).json(order);
+    });
 });
 
 router.put('/update-user-info',
