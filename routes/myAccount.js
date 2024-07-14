@@ -54,7 +54,7 @@ router.get('/:id', verifyToken, function(req, res, next) {
 
 router.get('/orders/search/:id',
   query('userId').notEmpty().isInt().escape(), 
-  // verifyToken, 
+  verifyToken, 
   function(req, res, next) {
     const orderId = req.params.id;
     const userId = req.query.userId;

@@ -65,7 +65,7 @@ function requestAll(table, callback) {
 }
 
 function filterItem(table, item, callback) {
-    const { minPrice, maxPrice, category } = item;
+    const { minPrice, maxPrice, category, brand } = item;
     let whereClause = [];
     if (minPrice) {
         whereClause.push(`price >= ${minPrice}`);
@@ -74,7 +74,14 @@ function filterItem(table, item, callback) {
         whereClause.push(`price <= ${maxPrice}`);
     }
     if (category) {
-        whereClause.push(`category = '${category}'`);
+        whereClause.push(`sub_category = LOWER('${category}')`);
+    }
+    if (brand) {
+        const sendValueArray = brand.split(', ');
+        let queryFormat = [];
+        sendValueArray.forEach(brand => queryFormat.push(`'${brand}'`))
+        const finalQuery = queryFormat.join(', ');
+        whereClause.push(`brand IN (${finalQuery})`);
     }
     let where = whereClause.length > 0 ? `WHERE ${whereClause.join(' AND ')}` : '';
 
@@ -82,6 +89,7 @@ function filterItem(table, item, callback) {
 
     db.any(sql)
         .then(result => {
+            console.log(sql)
             callback(null, result);
         })
         .catch(err => {

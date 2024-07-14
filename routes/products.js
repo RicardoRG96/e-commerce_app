@@ -9,30 +9,14 @@ const { findItem,
 } = require('../db/services');
 const { query, validationResult } = require('express-validator');
 
-//filtra productos en base a las caracteristicas marcadas enviadas en el campo query, si no se envia info en query
-//recupera todos los productos disponibles
-
-// router.get('/', function(req, res, next) {
-//   const query = req.query;
-//   if (query) {
-//     filterItem('products', query, (err, products) => {
-//       if (err) {
-//         return next(err);
-//       }
-//       if (!products.length) {
-//         return res.json({ message: 'No products were found with the selected filters' });
-//       }
-//       res.status(200).json(products);
-//     });
-//   } else {
-//     requestAll('products', (err, products) => {
-//       if (err) {
-//         return next(err);
-//       }
-//       res.status(200).json(products)
-//     }); 
-//   }
-// });
+router.get('/', function(req, res, next) {
+  requestAll('products', (err, products) => {
+    if (err) {
+      return next(err);
+    }
+    res.status(200).json(products);
+  }); 
+});
 
 //para buscar un producto en una barra de busqueda
 router.get('/search',
@@ -64,6 +48,21 @@ router.get('/categories', function(req, res, next) {
   });
 });
 
+//filtra productos en base a las caracteristicas marcadas enviadas en el campo query
+router.get('/filters',
+  function(req, res, next) {
+    const query = req.query;
+    filterItem('products', query, (err, products) => {
+      if (err) {
+        return next(err);
+      }
+      if (!products.length) {
+        return res.status(404).json({ message: 'No products were found with the selected filters' });
+      }
+      res.status(200).json(products);
+    });
+});
+
 // nuevo enfoque: no deberia filtrar productos en el backend, por ende, a las peticiones de productos, se envian todos los productos
 router.get('/:category', function(req, res, next) {
   const productCategory = req.params.category;
@@ -73,15 +72,6 @@ router.get('/:category', function(req, res, next) {
     }
     res.status(200).json(products);
   })
-});
-
-router.get('/', function(req, res, next) {
-  requestAll('products', (err, products) => {
-    if (err) {
-      return next(err);
-    }
-    res.status(200).json(products);
-  }); 
 });
 
 module.exports = router;
