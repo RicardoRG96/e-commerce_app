@@ -59,7 +59,6 @@ router.put('/update-product-data/:id',
         const productId = req.params.id;
         const updatedData = req.body;
         if (+updatedData.id !== +productId) {
-            console.log(typeof +updatedData.id);
             return res.sendStatus(409)
         }
         requestOne('products', 'id', productId, (err, product) => {

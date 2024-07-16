@@ -65,7 +65,7 @@ function requestAll(table, callback) {
 }
 
 function filterItem(table, item, callback) {
-    const { minPrice, maxPrice, category, brand } = item;
+    const { minPrice, maxPrice, category, brand, globalCategory } = item;
     let whereClause = [];
     if (minPrice) {
         whereClause.push(`price >= ${minPrice}`);
@@ -83,13 +83,15 @@ function filterItem(table, item, callback) {
         const finalQuery = queryFormat.join(', ');
         whereClause.push(`brand IN (${finalQuery})`);
     }
+    if (globalCategory) {
+        whereClause.push(`category = LOWER('${globalCategory}')`);
+    }
     let where = whereClause.length > 0 ? `WHERE ${whereClause.join(' AND ')}` : '';
 
     const sql = `SELECT * FROM ${table} ${where}`;
 
     db.any(sql)
         .then(result => {
-            console.log(sql)
             callback(null, result);
         })
         .catch(err => {
@@ -242,11 +244,11 @@ function getOrderItems(userId, callback) {
 function updateDataBaseTables(userId, total, callback) {
     createOrderRecord(userId, total, (err, order) => {
         if (err) {
-            return console.log(err);
+            return;
         }
         getOrderItems(userId, (err, items) => {
             if (err) {
-                return console.log(err);
+                return;
             }
             const itemsValues = items.map(item => `(${item.order_id}, ${item.product_id}, ${item.quantity}, ${item.price})`).join(', ');
             const stockUpdates = items.map(item => `UPDATE products SET stock = stock - ${item.quantity} WHERE id = ${item.product_id}`).join('; ');
@@ -297,7 +299,6 @@ function getOrderProducts(orderId, callback) {
 function deleteOrders(orderId, callback) {
     getOrderProducts(orderId, (err, orderItmes) => {
         if (err) {
-            console.log(err);
             return;
         }
         const updates = orderItmes.map(order => `UPDATE products SET stock = stock + ${order.quantity} WHERE id = ${order.product_id}`).join('; ');

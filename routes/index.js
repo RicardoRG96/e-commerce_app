@@ -42,7 +42,7 @@ router.post('/register',
         });
       })
       .catch(err => {
-        console.log('Error: ' + err);
+        next(err);
       });
   }
 );

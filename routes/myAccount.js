@@ -52,6 +52,7 @@ router.get('/:id', verifyToken, function(req, res, next) {
   });
 });
 
+//para buscar una orden por su numero
 router.get('/orders/search/:id',
   query('userId').notEmpty().isInt().escape(), 
   verifyToken, 

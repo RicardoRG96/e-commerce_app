@@ -2,8 +2,7 @@ var express = require('express');
 var router = express.Router();
 const { findItem, 
   requestAll, 
-  filterItem, 
-  requestOne, 
+  filterItem,
   requestProductsByCategory, 
   requestListOfProductsCategories 
 } = require('../db/services');
@@ -63,7 +62,7 @@ router.get('/filters',
     });
 });
 
-// nuevo enfoque: no deberia filtrar productos en el backend, por ende, a las peticiones de productos, se envian todos los productos
+// envia todos los productos de determinada categoria
 router.get('/:category', function(req, res, next) {
   const productCategory = req.params.category;
   requestProductsByCategory(productCategory, (err, products) => {

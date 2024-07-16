@@ -16,7 +16,6 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res, nex
     try {
       event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (err) {
-      console.log(`⚠️  Webhook signature verification failed.`, err.message);
       return res.sendStatus(400);
     }
   
@@ -33,7 +32,6 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res, nex
 
       updateDataBaseTables(userId, total, (err, updates) => {
         if (err) {
-          console.log(err);
           return next(err);
         }
         console.log('Base de datos actualizada con exito');

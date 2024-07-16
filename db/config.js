@@ -7,7 +7,6 @@ const cn = {
     password: process.env.DB_PASSWORD,
     host: 'localhost',
     port: 5432,
-    // database: 'e-commerce_project'
     database: process.env.NODE_ENV === 'test' ? 'e-commerce_test' : 'e-commerce_project'
 };
 
