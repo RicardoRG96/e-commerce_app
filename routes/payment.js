@@ -15,8 +15,7 @@ router.post('/create-checkout-session',
     verifyToken, 
     body('userId').isInt().escape(),
     body('products').notEmpty().escape(),
-    body('description').notEmpty().escape(),
-    body('total').isInt().escape(),
+    body('total').escape(),
     async function(req, res, next) {
         try {
             const errors = validationResult(req);
@@ -24,10 +23,10 @@ router.post('/create-checkout-session',
                 return res.status(400).json({ errors: errors.array() });
             }
 
-            const { userId, products, description, total } = req.body;
+            const { userId, products, total } = req.body;
             const paymentSession = await stripe.checkout.sessions.create({
-                success_url: 'http://localhost:3000/success.html',
-                cancel_url: 'http://localhost:3000/index.html',
+                success_url: 'http://localhost:5173/success-payment',
+                cancel_url: 'http://localhost:5173/cart',
                 metadata: {
                     user_id: userId,
                     total: total,
@@ -38,7 +37,6 @@ router.post('/create-checkout-session',
                         price_data: {
                             product_data: {
                                 name: products,
-                                description: description
                             },
                             currency: 'usd',
                             unit_amount: total
@@ -50,6 +48,7 @@ router.post('/create-checkout-session',
             });
             res.status(200).json(paymentSession);
         } catch(err) {
+            console.log(err)
             res.status(500).json(err)
         }
     }

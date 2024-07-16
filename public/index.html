@@ -12,24 +12,24 @@
         </button>
     </div>
     <script defer>
-        const paymentBtn = document.getElementById('payment');
-        paymentBtn.addEventListener('click', async () => {
-            const res = await fetch('http://localhost:3000/api/payment/create-checkout-session', {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    userId: 5,
-                    products: "iPhone 14",
-                    description: "Compra en E-Commerce Mateo",
-                    total: 99999,
-                })
-            });
-            const data = await res.json();
-            console.log(data);
-            window.location.href = data.url;
-        })
+        // const paymentBtn = document.getElementById('payment');
+        // paymentBtn.addEventListener('click', async () => {
+        //     const res = await fetch('http://localhost:3000/api/payment/create-checkout-session', {
+        //         method: 'POST',
+        //         headers: {
+        //             "Content-Type": "application/json"
+        //         },
+        //         body: JSON.stringify({
+        //             userId: 5,
+        //             products: "iPhone 14",
+        //             description: "Compra en E-Commerce Mateo",
+        //             total: 99999,
+        //         })
+        //     });
+        //     const data = await res.json();
+        //     console.log(data);
+        //     window.location.href = data.url;
+        // })
     </script>
 </body>
 </html>
